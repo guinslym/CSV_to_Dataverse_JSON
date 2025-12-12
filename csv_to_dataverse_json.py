@@ -13,9 +13,14 @@ import pandas as pd
 from datetime import datetime
 import uuid
 import argparse
+from typing import Dict, List, Optional, Any, Union, Tuple
 
 
-def ensure_required_fields(dataset_json, row, defaults=None):
+def ensure_required_fields(
+    dataset_json: Dict[str, Any],
+    row: pd.Series,
+    defaults: Optional[Dict[str, str]] = None
+) -> None:
     """Ensure Dataverse-required fields exist; fill with placeholders if missing."""
     try:
         citation_fields = dataset_json["datasetVersion"]["metadataBlocks"]["citation"][
@@ -194,7 +199,11 @@ def ensure_required_fields(dataset_json, row, defaults=None):
     return
 
 
-def csv_to_dataverse_json(csv_file_path, output_json_path, defaults=None):
+def csv_to_dataverse_json(
+    csv_file_path: str,
+    output_json_path: str,
+    defaults: Optional[Dict[str, str]] = None
+) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
     """
     Convert CSV file to complete Dataverse JSON format.
     Includes all top-level fields, datasetVersion, license, and metadata blocks.
@@ -792,7 +801,11 @@ def csv_to_dataverse_json(csv_file_path, output_json_path, defaults=None):
     return output_data
 
 
-def parse_compound(value, field_name, compound_fields):
+def parse_compound(
+    value: str,
+    field_name: str,
+    compound_fields: Dict[str, List[str]]
+) -> List[Dict[str, Dict[str, Any]]]:
     """
     Parse compound field values.
     Format: "value1; value2; value3 | value1; value2; value3"
@@ -831,7 +844,7 @@ def parse_compound(value, field_name, compound_fields):
     return result
 
 
-def create_geospatial_block(row):
+def create_geospatial_block(row: pd.Series) -> Optional[Dict[str, Any]]:
     """Create geospatial metadata block if fields are present."""
     geospatial = {
         "displayName": "Geospatial Metadata",
@@ -886,7 +899,7 @@ def create_geospatial_block(row):
     return geospatial if geospatial["fields"] else None
 
 
-def create_socialscience_block(row):
+def create_socialscience_block(row: pd.Series) -> Optional[Dict[str, Any]]:
     """Create social science metadata block if fields are present."""
     socialscience = {
         "displayName": "Social Science and Humanities Metadata",
